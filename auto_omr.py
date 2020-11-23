@@ -48,7 +48,7 @@ signal.signal(signal.SIGINT, signal_handler)
 
 ### SETTINGS ###
 # Nr. of workers
-WORKERS = 1
+WORKERS = 3
 
 # outdir set-up
 OUTDIR_DIRS = {
@@ -98,10 +98,10 @@ RES_MAX_SHEAR = 0.01  # 0.1%
 RES_MAX_SCALE = 0.1   # 1%
 
 # tuned for 300 dpi grayscale text
-BLACK_LEVEL = 0.80
+BLACK_LEVEL = 0.65
 OVRF_THR    = 0.350
-FILL_THR    = 0.040
-VOID_THR    = 0.008
+FILL_THR    = 0.0045
+VOID_THR    = 0.001
 
 # H/V line rejection
 CLEAN_LEN = 47  # window length (must be odd)
@@ -129,9 +129,16 @@ def plot_with_marks(image, coords):
     # ax.axis((0, 310, 200, 0))
     plt.show()
 
-## REGISTRATION
 def load_image(path):
-    image = skimage.io.imread(path, as_gray=True)#, flatten=True)
+    try:
+        image = skimage.io.imread(path, as_gray=True)
+    except (OSError, ValueError) as err:
+        sleep(1) # maybe image is still written?
+        try:
+            image = skimage.io.imread(path, as_gray=True)
+        except (OSError, ValueError) as err:
+            # print('Image "{} could not be loaded...'.format(path))
+            return None
     image = skimage.util.img_as_float(image)
     return image
 
@@ -142,11 +149,7 @@ def save_image(image, path):
         image = skimage.util.img_as_ubyte(image)
     skimage.io.imsave(path, image)
 
-
-# def detect_features(image):
-#     data = skimage.feature.corner_harris(image, sigma=CORNER_SIGMA)
-#     return skimage.feature.corner_peaks(data, min_distance=CORNER_MIN_DIST, threshold_rel = 0.1)
-
+## REGISTRATION
 def detect_features(image, reg = None):
     if reg is None:
         data = skimage.feature.corner_harris(image, sigma=CORNER_SIGMA)
@@ -376,8 +379,9 @@ def load_svg_rects(path, shape):
         w = int(float(tag.get('width')) * dw)
         h = int(float(tag.get('height')) * dh)
         roi = crop_region(image, (w, h, x, y))
-        # b = fill(clean_image(roi)) # with removed H/V lines
-        b = fill(roi)
+        roi[ roi > BLACK_LEVEL * 255 ] = 255
+        b = fill(clean_image(roi)) # with removed H/V lines
+        # b = fill(roi)
         rects.append((i, x, y, w, h, b))
     return rects
 
@@ -429,6 +433,8 @@ def omr(scan, subdir, outdirs, templ, marks, debug):
     scan_file = shutil.move(os.path.join(subdir, scan), outdirs['processing'])
     ### register scan
     image = load_image(scan_file)
+    if image is None:
+        log.append('Unable to load image')
     image = skimage.filters.gaussian(image, sigma = GAUSSIAN_SIGMA)
 
     # analyze image
@@ -455,7 +461,6 @@ def omr(scan, subdir, outdirs, templ, marks, debug):
                     f.write('\n'.join(log))
             return log
 
-    # import ipdb; ipdb.set_trace()
     # extract barcode
     barcode = extract_barcode(match, EDGE_REGIONS[4])
     if len(barcode) != 1:
@@ -475,9 +480,10 @@ def omr(scan, subdir, outdirs, templ, marks, debug):
     ## image needs to be scaled 0...255 (simpleomr script requirement)
     img = skimage.util.img_as_ubyte(match)
     rois = [(w, h, x, y) for i, x, y, w, h, b in marks[page-1]]
-    # clean = clean_image(img, rois) # with removed H/V lines
-    # res = scan_marks(clean, marks[page-1])
-    res = scan_marks(img, marks[page-1])
+    img[ img > BLACK_LEVEL * 255 ] = 255
+    clean = clean_image(img, rois) # with removed H/V lines
+    res = scan_marks(clean, marks[page-1])
+    # res = scan_marks(img, marks[page-1])
 
     # write out results
     outdir = os.path.join(outdirs['done'], id)
@@ -486,8 +492,8 @@ def omr(scan, subdir, outdirs, templ, marks, debug):
     save_image(match, os.path.join(outdir, '{}-{}.png'.format(id, page)))
 
     if debug:
-        # debug_marks(os.path.join(outdir, '{}-{}_debug.png'.format(id, page)), img, clean, marks[page-1], res) # with removed H/V lines
-        debug_marks(os.path.join(outdir, '{}-{}_debug.png'.format(id, page)), img, img, marks[page-1], res)
+        debug_marks(os.path.join(outdir, '{}-{}_debug.png'.format(id, page)), img, clean, marks[page-1], res) # with removed H/V lines
+        # debug_marks(os.path.join(outdir, '{}-{}_debug.png'.format(id, page)), img, img, marks[page-1], res)
 
     if debug:
         with open(os.path.join(outdir, '{}-{}.tsv'.format(id, page)), 'w') as f:

@@ -14,7 +14,7 @@
    height="3483"
    viewBox="0 0 2448 3483"
    sodipodi:docname="scan_form_pg1.svg"
-   inkscape:version="1.0 (4035a4fb49, 2020-05-01)">
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)">
   <metadata
      id="metadata8">
     <rdf:RDF>
@@ -23,7 +23,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -43,13 +43,13 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="2560"
-     inkscape:window-height="1381"
+     inkscape:window-width="3200"
+     inkscape:window-height="1729"
      id="namedview4"
      showgrid="false"
-     inkscape:zoom="0.1539621"
-     inkscape:cx="-982.43031"
-     inkscape:cy="2020.1279"
+     inkscape:zoom="0.85401251"
+     inkscape:cx="1061.3239"
+     inkscape:cy="3160.0554"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
@@ -90,7 +90,7 @@
        y="905.44135" />
     <rect
        style="opacity:0.99;fill:#ff6600;fill-opacity:0.513355;stroke:#0000ff;stroke-width:9.1818;stroke-miterlimit:4;stroke-dasharray:none;stop-color:#000000"
-       id="CB_q2_1_no"
+       id="CB_q2_1_often"
        width="129.99873"
        height="132.02502"
        x="1647.6575"
@@ -104,7 +104,7 @@
        y="1035.9663" />
     <rect
        style="opacity:0.99;fill:#ff6600;fill-opacity:0.513355;stroke:#0000ff;stroke-width:9.1818;stroke-miterlimit:4;stroke-dasharray:none;stop-color:#000000"
-       id="CB_q2_2_no"
+       id="CB_q2_2_often"
        width="129.99873"
        height="132.02502"
        x="1647.6575"
@@ -118,7 +118,7 @@
        y="1158.9913" />
     <rect
        style="opacity:0.99;fill:#ff6600;fill-opacity:0.513355;stroke:#0000ff;stroke-width:9.1818;stroke-miterlimit:4;stroke-dasharray:none;stop-color:#000000"
-       id="CB_q2_3_no"
+       id="CB_q2_3_often"
        width="129.99873"
        height="132.02502"
        x="1647.6575"
@@ -132,7 +132,7 @@
        y="1291.0164" />
     <rect
        style="opacity:0.99;fill:#ff6600;fill-opacity:0.513355;stroke:#0000ff;stroke-width:9.1818;stroke-miterlimit:4;stroke-dasharray:none;stop-color:#000000"
-       id="CB_q2_4_no"
+       id="CB_q2_4_often"
        width="129.99873"
        height="132.02502"
        x="1644.6575"
@@ -146,7 +146,7 @@
        y="1415.9354" />
     <rect
        style="opacity:0.99;fill:#ff6600;fill-opacity:0.513355;stroke:#0000ff;stroke-width:9.1818;stroke-miterlimit:4;stroke-dasharray:none;stop-color:#000000"
-       id="CB_q2_5_no"
+       id="CB_q2_5_often"
        width="129.99873"
        height="132.02502"
        x="1641.6575"
@@ -160,7 +160,7 @@
        y="1543.8545" />
     <rect
        style="opacity:0.99;fill:#ff6600;fill-opacity:0.513355;stroke:#0000ff;stroke-width:9.1818;stroke-miterlimit:4;stroke-dasharray:none;stop-color:#000000"
-       id="CB_q2_6_no"
+       id="CB_q2_6_often"
        width="129.99873"
        height="132.02502"
        x="1643.1575"
@@ -174,7 +174,7 @@
        y="1673.2734" />
     <rect
        style="opacity:0.99;fill:#ff6600;fill-opacity:0.513355;stroke:#0000ff;stroke-width:9.1818;stroke-miterlimit:4;stroke-dasharray:none;stop-color:#000000"
-       id="CB_q2_7_no"
+       id="CB_q2_7_often"
        width="129.99873"
        height="132.02502"
        x="1643.1575"
@@ -188,7 +188,7 @@
        y="1801.1926" />
     <rect
        style="opacity:0.99;fill:#ff6600;fill-opacity:0.513355;stroke:#0000ff;stroke-width:9.1818;stroke-miterlimit:4;stroke-dasharray:none;stop-color:#000000"
-       id="CB_q2_8_no"
+       id="CB_q2_8_often"
        width="129.99873"
        height="132.02502"
        x="1643.1575"
@@ -202,7 +202,7 @@
        y="1921.6117" />
     <rect
        style="opacity:0.99;fill:#ff6600;fill-opacity:0.513355;stroke:#0000ff;stroke-width:9.1818;stroke-miterlimit:4;stroke-dasharray:none;stop-color:#000000"
-       id="CB_q2_9_no"
+       id="CB_q2_9_often"
        width="129.99873"
        height="132.02502"
        x="1641.6575"
@@ -216,7 +216,7 @@
        y="2049.5308" />
     <rect
        style="opacity:0.99;fill:#ff6600;fill-opacity:0.513355;stroke:#0000ff;stroke-width:9.1818;stroke-miterlimit:4;stroke-dasharray:none;stop-color:#000000"
-       id="CB_q2_10_no"
+       id="CB_q2_10_often"
        width="129.99873"
        height="132.02502"
        x="1640.1575"
@@ -230,7 +230,7 @@
        y="2175.9497" />
     <rect
        style="opacity:0.99;fill:#ff6600;fill-opacity:0.513355;stroke:#0000ff;stroke-width:9.1818;stroke-miterlimit:4;stroke-dasharray:none;stop-color:#000000"
-       id="CB_q2_11_no"
+       id="CB_q2_11_often"
        width="129.99873"
        height="132.02502"
        x="1637.1575"
@@ -244,7 +244,7 @@
        y="2294.8687" />
     <rect
        style="opacity:0.99;fill:#ff6600;fill-opacity:0.513355;stroke:#0000ff;stroke-width:9.1818;stroke-miterlimit:4;stroke-dasharray:none;stop-color:#000000"
-       id="CB_q2_12_no"
+       id="CB_q2_12_often"
        width="129.99873"
        height="132.02502"
        x="1637.1575"
@@ -258,7 +258,7 @@
        y="2424.2876" />
     <rect
        style="opacity:0.99;fill:#ff6600;fill-opacity:0.513355;stroke:#0000ff;stroke-width:9.1818;stroke-miterlimit:4;stroke-dasharray:none;stop-color:#000000"
-       id="CB_q2_13_no"
+       id="CB_q2_13_often"
        width="129.99873"
        height="132.02502"
        x="1637.1575"
@@ -272,7 +272,7 @@
        y="2550.7068" />
     <rect
        style="opacity:0.99;fill:#ff6600;fill-opacity:0.513355;stroke:#0000ff;stroke-width:9.1818;stroke-miterlimit:4;stroke-dasharray:none;stop-color:#000000"
-       id="CB_q2_14_no"
+       id="CB_q2_14_often"
        width="129.99873"
        height="132.02502"
        x="1634.1575"
@@ -293,7 +293,7 @@
        y="2680.1257" />
     <rect
        style="opacity:0.99;fill:#ff6600;fill-opacity:0.513355;stroke:#0000ff;stroke-width:9.1818;stroke-miterlimit:4;stroke-dasharray:none;stop-color:#000000"
-       id="CB_q2_15_no"
+       id="CB_q2_15_often"
        width="129.99873"
        height="132.02502"
        x="1634.1575"
@@ -307,7 +307,7 @@
        y="2794.5449" />
     <rect
        style="opacity:0.99;fill:#ff6600;fill-opacity:0.513355;stroke:#0000ff;stroke-width:9.1818;stroke-miterlimit:4;stroke-dasharray:none;stop-color:#000000"
-       id="CB_q2_16_no"
+       id="CB_q2_16_often"
        width="129.99873"
        height="132.02502"
        x="1630.9175"
@@ -317,28 +317,28 @@
        id="CB_q2_17_other"
        width="129.99873"
        height="132.02502"
-       x="460.52246"
+       x="466.52246"
        y="2916.7039" />
     <rect
-       y="3264.1104"
-       x="1393.329"
-       height="163.75981"
+       y="3275.7041"
+       x="1385.329"
+       height="119.96684"
        width="115.62895"
        id="CB_agegroup_1"
-       style="opacity:0.99;fill:#ff6600;fill-opacity:0.513355;stroke:#0000ff;stroke-width:9.1818;stroke-miterlimit:4;stroke-dasharray:none;stop-color:#000000" />
+       style="opacity:0.99;fill:#ff6600;fill-opacity:0.513355;stroke:#0000ff;stroke-width:7.85877;stroke-miterlimit:4;stroke-dasharray:none;stop-color:#000000" />
     <rect
-       style="opacity:0.99;fill:#ff6600;fill-opacity:0.513355;stroke:#0000ff;stroke-width:7.04997;stroke-miterlimit:4;stroke-dasharray:none;stop-color:#000000"
+       style="opacity:0.99;fill:#ff6600;fill-opacity:0.513355;stroke:#0000ff;stroke-width:5.06525;stroke-miterlimit:4;stroke-dasharray:none;stop-color:#000000"
        id="CB_agegroup_2"
-       width="66.927277"
-       height="166.79689"
-       x="1508.9579"
-       y="3262.5916" />
+       width="47.16029"
+       height="122.19173"
+       x="1518.7249"
+       y="3274.5916" />
     <rect
-       style="opacity:0.99;fill:#ff6600;fill-opacity:0.513355;stroke:#0000ff;stroke-width:9.1818;stroke-miterlimit:4;stroke-dasharray:none;stop-color:#000000"
+       style="opacity:0.99;fill:#ff6600;fill-opacity:0.513355;stroke:#0000ff;stroke-width:7.85877;stroke-miterlimit:4;stroke-dasharray:none;stop-color:#000000"
        id="CB_agegroup_3"
        width="115.62895"
-       height="163.75981"
-       x="1575.8851"
-       y="3264.1104" />
+       height="119.96684"
+       x="1585.8851"
+       y="3275.7041" />
   </g>
 </svg>
