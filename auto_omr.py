@@ -146,6 +146,9 @@ def save_image(image, path):
     with warnings.catch_warnings():
         warnings.simplefilter('ignore', UserWarning)
         image = skimage.util.img_as_ubyte(image)
+    if os.path.exists(path):
+        path = os.path.splitext(path)
+        path = '{}-1{}'.format(path[0], path[1])
     skimage.io.imsave(path, image)
 
 ## REGISTRATION
@@ -424,6 +427,9 @@ def debug_marks(path, image, clean, marks, res):
     buf.paste((0, 127, 255),
               (0, 0, image.shape[1], image.shape[0]),
               Image.fromarray(bw, 'L'))
+    if os.path.exists(path):
+        path = os.path.splitext(path)
+        path = '{}-1{}'.format(path[0], path[1])
     buf.save(path)
 
 def omr(scan, subdir, outdirs, templ, marks, debug):
