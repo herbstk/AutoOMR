@@ -47,8 +47,7 @@ def signal_handler(signal, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 ### SETTINGS ###
-# Nr. of workers
-WORKERS = 3
+WORKERS = 5
 
 # outdir set-up
 OUTDIR_DIRS = {
@@ -99,7 +98,7 @@ RES_MAX_SCALE = 0.1   # 1%
 
 # tuned for 300 dpi grayscale text
 BLACK_LEVEL = 0.65
-OVRF_THR    = 0.350
+OVRF_THR    = 0.200
 FILL_THR    = 0.0045
 VOID_THR    = 0.001
 
