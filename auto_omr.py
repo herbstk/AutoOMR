@@ -106,6 +106,7 @@ VOID_THR    = 0.001
 CLEAN_LEN = 47  # window length (must be odd)
 CLEAN_W   = 3   # line width-1 (even)
 CLEAN_THR = 0.9 # rejection threshold
+CLEAN_CROP = .2 # additional border to include in cropped regions to clear (as fraction of crop width/height)
 
 # SVG specific for embedded images
 PREFIX = 'data:image/png;base64,'
@@ -335,6 +336,11 @@ def clean_image(image, rois = None):
     else:
         ret = np.full(shape = image.shape, fill_value = 255, dtype = np.uint8)
         for roi in rois:
+            # be more generous with cropping (to remove also H/V lines at the crop border)
+            w, h, x, y = roi
+            ws = round(w * CLEAN_CROP)
+            hs = round(h * CLEAN_CROP)
+            roi = (w+ws, h+hs, x-ws//2, y-hs//2)
             img = crop_region(image, roi)
             tmp = sp.ndimage.convolve(img/255, k) / np.sum(k)
             nimg = img.copy()
