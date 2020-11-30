@@ -98,7 +98,7 @@ RES_MAX_SCALE = 0.1   # 1%
 
 # tuned for 300 dpi grayscale text
 BLACK_LEVEL = 0.65
-OVRF_THR    = 0.200
+OVRF_THR    = 0.100
 FILL_THR    = 0.0045
 VOID_THR    = 0.001
 

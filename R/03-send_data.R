@@ -1,3 +1,27 @@
+library(tidyverse)
+library(readxl)
+
+# process data and upload
+COLS <- c("answer_id", "state", "fill_bgr", "bgr")
+# COLS_TYPES <- "ddccddccdc"
+COLS_TYPES <- c("numeric", "numeric", "numeric", "numeric", "text", "text", "text")
+
+curated_results <- lapply(c("Scans_processed/Batch1/aggregated_results_curated.xlsx",
+                            "Scans_processed/Batch2/aggregated_results_curated.xlsx"
+                                 ),
+                               function(.){
+                                 ret <- read_xlsx(., col_types = COLS_TYPES, na = "NA")
+                                 ret
+                               }) %>% bind_rows() %>%
+  arrange(page, household_id, q_id, q_nr) %>%
+  mutate(answer = if_else(is.na(curated), answer, curated)) %>%
+  select(-curated) %>%
+  write_tsv("20201127-aggregated_results_curated.tsv")
+
+curated_results_forDB <- curated_results %>% filter(!(q_id == 2 & q_nr == 17),
+                                                    !(q_id == 5 & q_nr == 0))
+# double check multiple answers
+curated_results_forDB %>% filter(str_length(answer) > 1)
 
 ## Sveta's code:
 library(httr)
@@ -9,9 +33,9 @@ boolean_fields <- c( "flu_vaccination", "chronic_kidney_condition", "diabetes", 
 
 # Take file from Konrad
 # read_tsv("~/tmp/20201122_23-aggregated_results_curated.tsv" ) %>%
-curated_results_out %>% filter(answer != "u") %>%
+curated_results_forDB %>% filter(answer != "u") %>%
   # Remove question IDs, we don't need them  
-  select( -q_id ) %>%
+  select( -page, -q_id, -q_nr ) %>%
   # Turn into wide table: one row per questionnaire, one column per field
   pivot_wider( names_from=map_db, values_from=answer ) %>%
   # Household IDs need leading zeroes  
@@ -26,12 +50,13 @@ auth <- authenticate( "herbstk", "PASSWORD" )
 for( i in 1:nrow(tbl) ) {
   # Turn row into list of fields, for POST request body
   lapply( as.list( tbl[i,] ), unname ) -> body
+  for(key in names(body))
+    if(is.na(body[[key]])) body[key] <- NULL
   # Send POST request using function from httr package
   POST( "https://virusfinder.de/de/add_questionnaire", 
         auth, body=body ) -> result
   # Print result. To do: inspect results to see whether we always 
   # get status 201 (created)
-  print( str_c( body$household_id, "  ", http_status(result)$message ) )
-  
+  print( str_c( i, ":", body$household_id, http_status(result)$message, content(result, as = "text"), sep = "  "  ) )
 } 
 
