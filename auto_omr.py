@@ -47,7 +47,7 @@ def signal_handler(signal, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 ### SETTINGS ###
-WORKERS = 5
+WORKERS = 6
 
 # outdir set-up
 OUTDIR_DIRS = {
@@ -106,7 +106,7 @@ VOID_THR    = 0.001
 CLEAN_LEN = 47  # window length (must be odd)
 CLEAN_W   = 3   # line width-1 (even)
 CLEAN_THR = 0.9 # rejection threshold
-CLEAN_CROP = .2 # additional border to include in cropped regions to clear (as fraction of crop width/height)
+CLEAN_CROP = .15 # additional border to include in cropped regions to clear (as fraction of crop width/height)
 
 # SVG specific for embedded images
 PREFIX = 'data:image/png;base64,'

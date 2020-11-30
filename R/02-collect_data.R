@@ -1,7 +1,7 @@
 library(tidyverse)
 library(readxl)
 
-db_mappings <- read_xlsx("~/Desktop/Fragebögen/AutoOMR/Templates/db_mappings_noagegroup.xlsx")
+db_mappings <- read_xlsx("~/AutoOMR/Templates/db_mappings_noagegroup.xlsx")
 meta <- str_split_fixed(db_mappings$answer_id, "_", 3)
 db_mappings$q_type <- meta[,1]
 db_mappings$q_id <- meta[,2]
@@ -51,7 +51,7 @@ aggregate_answers <- function(scan_results){
     mutate( answer = case_when(state == 1 ~ q_option,
                                state == -1 ~ "?",
                                TRUE ~ "") ) %>%
-    group_by(page, household_id, q_id, map_db) %>%
+    group_by(page, household_id, q_id, q_nr, map_db) %>%
     summarise(answer = str_c(answer, collapse = "")) %>%
     ungroup() %>%
     mutate(answer = recode(answer, "oy" = "o", "yo" = "o"),
