@@ -55,7 +55,11 @@ aggregate_answers <- function(scan_results){
     summarise(answer = str_c(answer, collapse = "")) %>%
     ungroup() %>%
     mutate(answer = recode(answer, "oy" = "o", "yo" = "o"),
-           answer = if_else(answer == "", "n", answer)) %>%
+           answer = case_when((q_id %in% c(2, 7, 14) & answer == "") ~ "n",
+                              #q_id == 13 & answer != "" ~ sapply(answer, function(.){as.character(min(as.numeric(unlist(str_split(., "")))))}),  # TODO questions asked for the highest degree (lowest rank)
+                              answer %in% c("", "yn", "ny") ~ "u",                            # ambiguous answers are undefined
+                              TRUE ~ answer
+                              )) %>%
     bind_rows(., consent)
     return(scan_results_out)
 }
@@ -71,7 +75,7 @@ for(scans_dir in list.dirs("./Scans_processed", full.names = TRUE, recursive = F
     result %>% mutate(curated = "") %>% write_tsv(file.path(scans_dir, "aggregated_results_curated.tsv"))
     
     # copy scan files for curation
-    curated_dir <- file.path(scans_dir, "Curated")
+    curated_dir <- file.path(scans_dir, "Curation")
     if(!dir.exists(curated_dir)){
       dir.create(curated_dir)
       curated_dir_pg1 <- file.path(curated_dir, "page1")

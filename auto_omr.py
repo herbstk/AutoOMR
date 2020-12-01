@@ -69,7 +69,7 @@ EDGE_REGIONS = [(300, 300, 0, 0),        # upper left corner (w, h, x, y)
                 (300, 300, 0, 3100),     # lower left corner
                 (300, 300, 2100, 0),     # upper right corner
                 (400, 400, 2160, 3150),  # lower right corner
-                (2500, 900, 0, 2600)]  # bottom
+                (2500, 900, 0, 2800)]  # bottom
 
 PAGEMARK_CIRCLE_MIN = 45
 PAGEMARK_CIRCLE_MAX = 55
