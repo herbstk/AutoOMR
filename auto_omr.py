@@ -59,7 +59,7 @@ OUTDIR_DIRS = {
 
 # templatedir set-up
 TEMPLATE_REGISTRATION = 'scan_form_template.tiff'
-TEMPLATES_FORMS = ('scan_form_pg1.svg',                # must be in page order
+TEMPLATES_FORMS = ('scan_form_pg1_v2.svg',                # must be in page order
                    'scan_form_pg2.svg',
                    'scan_form_pg3.svg')
 
@@ -98,9 +98,9 @@ RES_MAX_SCALE = 0.1   # 1%
 
 # tuned for 300 dpi grayscale text
 BLACK_LEVEL = 0.65
-OVRF_THR    = 0.100
-FILL_THR    = 0.0045
-VOID_THR    = 0.001
+OVRF_THR    = 0.09
+FILL_THR    = 0.02
+VOID_THR    = 0.004
 
 # H/V line rejection
 CLEAN_LEN = 47  # window length (must be odd)
@@ -397,7 +397,7 @@ def scan_marks(image, marks):
     res = []
     for i, x, y, w, h, b in marks:
         roi = crop_region(image, (w, h, x, y))
-        scr = fill(roi) - b
+        scr = fill(roi) #- b
         if scr > OVRF_THR:
             v = 2
         elif scr > FILL_THR:

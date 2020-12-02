@@ -18,8 +18,11 @@ curated_results <- lapply(c("Scans_processed/Batch1/aggregated_results_curated.x
   select(-curated) %>%
   write_tsv("20201127-aggregated_results_curated.tsv")
 
-curated_results_forDB <- curated_results %>% filter(!(q_id == 2 & q_nr == 17),
-                                                    !(q_id == 5 & q_nr == 0))
+## if no information is given make freetext answer fields undefined
+curated_results_forDB <- curated_results %>%
+  mutate(answer = if_else((q_id == 2 & q_nr == 17 & answer %in% c("n", "?", "other2")), "u", answer),
+         answer = if_else((q_id == 5 & q_nr == 0 & answer %in% c("n", "?")), "u", answer))
+
 # double check multiple answers
 curated_results_forDB %>% filter(str_length(answer) > 1)
 
