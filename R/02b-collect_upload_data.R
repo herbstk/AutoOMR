@@ -9,7 +9,7 @@ boolean_fields <- c( "flu_vaccination", "chronic_kidney_condition", "diabetes", 
 
 
 # Authentication for server
-auth <- authenticate( "herbstk", "PASSWORD" )
+auth <- authenticate( "herbstk", "tomate7654" )
 
 db_mappings <- read_xlsx("~/AutoOMR/Templates/db_mappings_noagegroup.xlsx")
 meta <- str_split_fixed(db_mappings$answer_id, "_", 3)
@@ -73,7 +73,7 @@ aggregate_answers <- function(scan_results){
     group_by(page, household_id, q_id, q_nr, map_db) %>%
     summarise(answer = str_c(answer, collapse = "")) %>%
     ungroup() %>%
-    mutate(answer = recode(answer, "oy" = "o", "yo" = "o"),
+    mutate(answer = recode(answer, "oy" = "o", "yo" = "o", "no" = "o", "on" = "o"),
            answer = case_when((q_id %in% c(2, 7, 14) & answer == "") ~ "n",
                               #q_id == 13 & answer != "" ~ sapply(answer, function(.){as.character(min(as.numeric(unlist(str_split(., "")))))}),  # TODO questions asked for the highest degree (lowest rank)
                               answer %in% c("", "yn", "ny") | str_detect(answer, "\\?") ~ "u",                            # ambiguous answers are undefined
@@ -93,8 +93,9 @@ prepare_upload <- function(result){
     pivot_wider( names_from=map_db, values_from=answer ) %>%
     # Household IDs need leading zeroes  
     # mutate_at( vars(household_id), ~ sprintf( "%05d", . ) ) %>%
+    filter(!is.na(household_id)) %>%
     # Change encoding for boolean fields (see above)
-    mutate_at( vars(boolean_fields), ~ c( n="False", y="True")[.] )
+    mutate( across(all_of(boolean_fields), ~ c( n="False", y="True")[.] ))
   return(tbl)
 }
 
