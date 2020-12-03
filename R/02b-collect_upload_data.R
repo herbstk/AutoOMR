@@ -1,3 +1,16 @@
+#!/usr/bin/env Rscript
+args = commandArgs(trailingOnly=TRUE)
+
+# test if there is at least one argument: if not, return an error
+if (length(args)==0) {
+  stop("At least one arguments must be supplied (input directory(containing ./Scans_processed)).", call.=FALSE)
+} #else if (length(args)==1) {
+#  # default output file
+#  args[2] = "out.tsv"
+#}
+
+scans_dir = args[1]
+
 library(tidyverse)
 library(readxl)
 library(httr)
@@ -24,7 +37,7 @@ COLS_TYPES <- "cddd"
 
 collect_scan_results <- function(path){
   processed_files <- list.files(path, pattern = "\\.tsv", recursive = TRUE, full.names = TRUE)
-  processed_files <- processed_files[!str_detect(processed_files, "aggregated_results")]
+  processed_files <- processed_files[!str_detect(processed_files, "results.tsv")]
   
   scan_results <- lapply(processed_files, function(.){
     ret <- read_tsv(., col_names = COLS, col_types = COLS_TYPES)
@@ -100,6 +113,7 @@ prepare_upload <- function(result){
 }
 
 upload_results <- function(tbl){
+  tbl$needs_validation <- "True"
   # Go through all rows, send a POST request for each
   for( i in 1:nrow(tbl) ) {
     # Turn row into list of fields, for POST request body
@@ -115,10 +129,12 @@ upload_results <- function(tbl){
   }
 }
 
-scans_dirs <- list.dirs("./Scans_processed", full.names = TRUE, recursive = FALSE)
+
+
+#scans_dirs <- list.dirs("./Scans_processed", full.names = TRUE, recursive = FALSE)
 ## remove no consent directory
-scans_dirs <- scans_dirs[!str_detect(scans_dirs, "^no")]
-for(scans_dir in scans_dirs){
+#scans_dirs <- scans_dirs[!str_detect(scans_dirs, "^no")]
+#for(scans_dir in scans_dirs){
   print(str_c("Processing: ", scans_dir))
   result <- collect_scan_results(scans_dir)
   
@@ -149,4 +165,4 @@ for(scans_dir in scans_dirs){
   # } else {
   #   print(str_c("Directory ", curated_dir, " already exists; please remove."))
   # }
-}
+#}
