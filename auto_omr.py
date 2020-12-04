@@ -544,7 +544,7 @@ def main():
 
     # load and process templates
     if not os.path.isdir(args.templatedir):
-        logging.info('The templdir doesn\'t exist.')
+        logging.info('The templatedir doesn\'t exist.')
         return 1
     else:
         f = os.path.join(args.templatedir, TEMPLATE_REGISTRATION)
@@ -570,8 +570,9 @@ def main():
                 if not entry.name.startswith('.') and entry.is_dir():
                     scans_todo[entry.name] = [x.name for x in os.scandir(entry.name) if x.name.endswith('.pnm')]   # filter for pnm files in current working directory
         if len(scans_todo) == 0:
-            logging.info('No scanned files (.pnm) found in subdirectories of the current working directory. Please set current working directory appropriately.')
-            return 1
+            logging.info('So far no subdirectories exist in current working directory. Idle for 3 sec...')
+            sleep(3)
+            continue
         else:
             logging.info('Found {} files in {} subdirectories of the current working directory.'.format(len([s for l in scans_todo.values() for s in l]),
                                                                                                     len(scans_todo)))
