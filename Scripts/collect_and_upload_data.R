@@ -15,7 +15,7 @@ boolean_fields <- c( "flu_vaccination", "chronic_kidney_condition", "diabetes", 
                      "work_with_kids", "no_further_research", "consent" )
 
 # Authentication for server
-auth <- authenticate( "herbstk", "PASSWORD" )
+auth <- authenticate( "herbstk", "tomate7654" )
 
 db_mappings <- read_xlsx("~/AutoOMR/Templates/db_mappings_noagegroup.xlsx")
 meta <- str_split_fixed(db_mappings$answer_id, "_", 3)

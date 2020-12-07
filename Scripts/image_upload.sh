@@ -8,7 +8,7 @@ for d in "$1"/*; do
         if [[ ! -f "$d"/uploaded_images ]]; then
             echo "Uploading images for directory $d..."
             TMPDIR=$(mktemp -d);
-            find . -name '*-[1,2].png' -type f | \
+            find "$d" -name '*-[1,2].png' -type f | \
                 xargs -I{} sh -c \
                       'nf="$0/$(basename {})"; echo $nf; convert -resize 816x1161 {} - > $nf' $TMPDIR
             scp $TMPDIR/*.png kherbst@virusfinder.de:~/p_q_scans/
