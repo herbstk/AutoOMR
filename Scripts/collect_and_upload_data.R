@@ -114,7 +114,7 @@ prepare_upload <- function(result){
     # mutate_at( vars(household_id), ~ sprintf( "%05d", . ) ) %>%
     filter(!is.na(household_id)) %>%
     # Change encoding for boolean fields (see above)
-    mutate( across(all_of(boolean_fields), ~ c( n="False", y="True")[.] ))
+    mutate( across(any_of(boolean_fields), ~ c( n="False", y="True")[.] ))
   return(tbl)
 }
 
