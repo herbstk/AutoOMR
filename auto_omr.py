@@ -133,7 +133,7 @@ def load_image(path):
     try:
         image = skimage.io.imread(path, as_gray=True)
     except (OSError, ValueError) as err:
-        sleep(1) # maybe image is still written?
+        sleep(3) # maybe image is still written?
         try:
             image = skimage.io.imread(path, as_gray=True)
         except (OSError, ValueError) as err:
@@ -440,12 +440,14 @@ def debug_marks(path, image, clean, marks, res):
 
 def omr(scan, subdir, outdirs, templ, marks, debug):
     log = ['Log for image "{}"'.format(scan)]
+    sleep(3) ## wait, in case file is still written
     ### move scans to processing folder
     scan_file = shutil.move(os.path.join(subdir, scan), outdirs['processing'])
     ### register scan
     image = load_image(scan_file)
     if image is None:
-        log.append('Unable to load image')
+        log.append('Unable to load image.')
+        return log
     image = skimage.filters.gaussian(image, sigma = GAUSSIAN_SIGMA)
 
     # analyze image
