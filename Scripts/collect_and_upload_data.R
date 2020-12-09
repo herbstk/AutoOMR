@@ -5,7 +5,6 @@ library(httr)
 
 scans_dir = commandArgs(trailingOnly=TRUE)[[1]]
 
-## test if there is at least one argument: if not, return an error
 if(!dir.exists(scans_dir))
   stop(str_c("Directory not found: ", scans_dir))
 
@@ -75,37 +74,41 @@ aggregate_answers <- function(scan_results){
   ## logic for handling new template version
   scan_results <- scan_results %>%
     group_by(household_id) %>%
-    mutate(q_option = if_else(
-      state[answer_id == "CB_templateversion_0"] <= 0 & q_id == 2 & q_option == "yes", "", q_option), # for old template version, change answers accordingly
-      q_option = if_else(
-        state[answer_id == "CB_templateversion_0"] <= 0 & q_id == 2 & q_option == "no", "yes", q_option)) %>% 
+    mutate(
+      nt = state[answer_id == "CB_templateversion_0"] > 0, # FALSE = old / TRUE = new version
+      q_option = if_else(!nt & q_id == 2 & q_option == "yes", "", q_option), # for old template version, change answers accordingly
+      q_option = if_else(!nt & q_id == 2 & q_option == "no", "yes", q_option)) %>% 
     ungroup() %>%
     filter(!(q_id == 2 & q_option == ""))
   
   scan_results_out <- scan_results %>%
     filter(!is.na(map_db)) %>%
     mutate(q_option = recode(q_option, "yes" = "y", "no" = "n", "often" = "o")) %>%
-    mutate( answer = case_when(state == 1 ~ q_option,
+    mutate(answer = case_when(state == 1 ~ q_option,
                                state == -1 ~ "?",
                                TRUE ~ "") ) %>%
-    group_by(page, household_id, q_id, q_nr, map_db) %>%
+    group_by(nt, page, household_id, q_id, q_nr, map_db) %>%
     summarise(answer = str_c(answer, collapse = "")) %>%
     ungroup() %>%
     mutate(answer = recode(answer, "oy" = "o", "yo" = "o", "no" = "o", "on" = "o"),
-           answer = case_when((q_id %in% c(2, 7, 14) & answer == "") ~ "n",
+           answer = case_when(q_id == 2  & answer == "" & nt ~ "u",
+                              q_id == 2  & answer == "" & !nt ~ "n",
+                              q_id %in% c(7, 14) & answer == "" ~ "n",
                               q_id == 13 & answer != "" ~ min_digit(answer),  # questions asked for the highest degree (lowest rank)
-                              answer %in% c("", "yn", "ny") | str_detect(answer, "\\?") ~ "u",                            # ambiguous answers are undefined
+                              str_detect(answer,  "yn|ny") | str_detect(answer, "\\?") ~ "u",                            # ambiguous answers are undefined
+                              answer == "" ~ "",
                               TRUE ~ answer),
-           answer = if_else((q_id == 2 & q_nr == 17 & answer %in% c("n", "?", "other2")), "u", answer),
-           answer = if_else((q_id == 5 & q_nr == 0 & answer %in% c("n", "?", "other2")), "u", answer),
+           answer = if_else((q_id == 2 & q_nr == 17 & answer %in% c("n", "?", "other2")), "", answer),
+           answer = if_else((q_id == 5 & q_nr == 0 & answer %in% c("n", "?", "other2")), "", answer),
            answer = if_else((q_id == 6 & q_nr == 0 & str_detect(answer, "other")), "u", answer)) %>%
-    bind_rows(., consent)
+    bind_rows(., consent) %>%
+    select(-nt) %>% arrange(household_id, page, q_id, q_nr)
   return(scan_results_out)
 }
 
 prepare_upload <- function(result){
   ## Sveta's code:
-  tbl <- result %>% filter(answer != "u") %>%
+  tbl <- result %>% filter(answer != "") %>%
     # Remove question IDs, we don't need them  
     select( -page, -q_id, -q_nr ) %>%
     # Turn into wide table: one row per questionnaire, one column per field
