@@ -95,12 +95,12 @@ aggregate_answers <- function(scan_results){
                               q_id == 2  & answer == "" & !nt ~ "n",
                               q_id %in% c(7, 14) & answer == "" ~ "n",
                               q_id == 13 & answer != "" ~ min_digit(answer),  # questions asked for the highest degree (lowest rank)
-                              str_detect(answer,  "yn|ny") | str_detect(answer, "\\?") ~ "u",                            # ambiguous answers are undefined
+                              str_detect(answer,  "yn|ny|noy") | str_detect(answer, "\\?") ~ "u",                            # ambiguous answers are undefined
                               answer == "" ~ "",
                               TRUE ~ answer),
            answer = if_else((q_id == 2 & q_nr == 17 & answer %in% c("n", "?", "other2")), "", answer),
            answer = if_else((q_id == 5 & q_nr == 0 & answer %in% c("n", "?", "other2")), "", answer),
-           answer = if_else((q_id == 6 & q_nr == 0 & str_detect(answer, "other")), "u", answer)) %>%
+           answer = if_else((q_id == 6 & q_nr == 0 & (str_detect(answer, "other")|answer == "u")), "", answer)) %>%
     bind_rows(., consent) %>%
     select(-nt) %>% arrange(household_id, page, q_id, q_nr)
   return(scan_results_out)
