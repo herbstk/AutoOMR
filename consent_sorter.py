@@ -17,12 +17,10 @@ import fnmatch
 
 from pyzbar.pyzbar import decode, ZBarSymbol
 
-import matplotlib.pyplot as plt
-
 from joblib import Parallel, delayed
 
 ## SETTINGS ##
-WORKERS = 4
+WORKERS = 6
 # outdir set-up
 OUTDIR_DIRS = {
     'failed'     : 'processed_failed',
@@ -221,8 +219,8 @@ def main():
         mkdir(outdirs[k])
 
     ## acquire scans to process from subdirectories of current directory (if none found we might not be in the right directory??)
-    with os.scandir(indir) as it:
-        files = [f.name for f in os.scandir() if f.is_file() and not f.name.startswith('.') and f.name.endswith('.pnm')]
+    with os.scandir(args.indir) as it:
+        files = [os.path.join(args.indir, f.name) for f in it if f.is_file() and not f.name.startswith('.') and f.name.endswith('.pnm')]
         logging.info('Found {} pnm-files in current working directory.'.format(len(files)))
         files.sort(reverse = True)
         files_doublets, files_singlets = disentangle_scans(files)
