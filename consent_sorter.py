@@ -201,6 +201,7 @@ def process_doublepage(file1, file2, outdirs, debug):
 
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument('indir', help = 'input directory')
     ap.add_argument('outdir', help = 'output directory')
     ap.add_argument('-d', dest='debug', action='store_true', help='Debug mode')
     ap.add_argument('-v', dest='verbose', action='count', default=0, help='Increase verbosity')
@@ -220,7 +221,7 @@ def main():
         mkdir(outdirs[k])
 
     ## acquire scans to process from subdirectories of current directory (if none found we might not be in the right directory??)
-    with os.scandir('./') as it:
+    with os.scandir(indir) as it:
         files = [f.name for f in os.scandir() if f.is_file() and not f.name.startswith('.') and f.name.endswith('.pnm')]
         logging.info('Found {} pnm-files in current working directory.'.format(len(files)))
         files.sort(reverse = True)
