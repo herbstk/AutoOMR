@@ -5,9 +5,10 @@
 
 for d in "$1"/*; do
     if [[ -d "$d" ]]; then
-        if [[ ! -d "$d/processed_failed_consents" ]]; then
+        if [[ ! -d "$2/$d/processed_failed_consents" ]]; then
             echo "Processing failed scans in directory $d..."
-            python3 ~/AutoOMR/consent_sorter.py -d -v "$d/processed_failed" "$d/processed_failed_consents"
+            mkdir -p "$2/$d/processed_failed_consents"
+            python3 ~/AutoOMR/consent_sorter.py -d -v "$d/processed_failed" "$2/$d/processed_failed_consents"
         else
             echo "Failed scans in directory $d already have been sorted. Skipping..."
         fi

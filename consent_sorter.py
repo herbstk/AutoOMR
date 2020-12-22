@@ -19,16 +19,21 @@ from pyzbar.pyzbar import decode, ZBarSymbol
 
 from joblib import Parallel, delayed
 
+from time import sleep
+from random import randint
+
 ## SETTINGS ##
-WORKERS = 6
+WORKERS = 3
 # outdir set-up
 OUTDIR_DIRS = {
     'failed'     : 'processed_failed',
+    'failed_filled'     : 'processed_failed/filled',
+    'failed_empty'     : 'processed_failed/empty',
     'done'       : 'processed',
 }
 
-BLACK_LEVEL = 0.65
-PAGE_EMPTY  = 0.02
+BLACK_LEVEL = 0.650
+PAGE_EMPTY  = 0.025
 
 def intfn(fn):
     x = re.findall('\d+', fn)
@@ -43,14 +48,26 @@ def disentangle_scans(fns):
     fns_even = [f for f in fns if intfn(f)%2==0]
     fns_doublets = []
     fns_singlets = []
-    while len(fns_odd) > 0 and len(fns_even) > 1:
+    while len(fns_odd) > 0 and len(fns_even) > 0:
         fno = fns_odd.pop()
         fne = fns_even.pop()
-        if intfn(fno) + 1 == intfn(fne):
+        ifno = intfn(fno)
+        ifne = intfn(fne)
+        if ifno + 1 == ifne:
             fns_doublets.append( (fno, fne) )
         else:
-            fns_singlets.append(fne)
-            fns_odd.append(fno)
+            if ifno < ifne:
+                fns_singlets.append(fno)
+            else:
+                fns_odd.append(fno)
+            if ifne < ifno:
+                fns_singlets.append(fne)
+            else:
+                fns_even.append(fne)
+    if len(fns_odd) > 0:
+        for fno in fns_odd:
+            fns_singlets.append(fno)
+
     if len(fns_even) > 0:
         for fne in fns_even:
             fns_singlets.append(fne)
@@ -84,7 +101,7 @@ def save_image(image, path):
     if os.path.exists(path):
         path = os.path.splitext(path)
         path = '{}-1{}'.format(path[0], path[1])
-    skimage.io.imsave(path, image)
+    skimage.io.imsave(path, image, check_contrast = False)
 
 def save_incr_image(image, path):
     path, fn = os.path.split(path)
@@ -94,9 +111,18 @@ def save_incr_image(image, path):
         nfn = '{}-{:0=2d}{}'.format(base, i, ext)
         npath = os.path.join(path, nfn)
         if not os.path.exists(npath):
-            save_image(image, npath)
-            return npath
+            # maybe the same path is already used by another process, try once more to be sure
+            sleep(randint(10,50)/10) # maybe image is still written?
+            if not os.path.exists(npath):
+                save_image(image, npath)
+                return npath
         i = i + 1
+
+def save_png_image(image, path):
+    path, fn = os.path.split(path)
+    base, ext = os.path.splitext(fn)
+    npath = os.path.join(path, base + '.png')
+    save_image(image, npath)
 
 def fill(image):
     return (image < BLACK_LEVEL).sum() / (image.shape[0] * image.shape[1])
@@ -147,22 +173,31 @@ def process_doublepage(file1, file2, outdirs, debug):
                     with open(os.path.splitext(outfile2)[0] + '-log.txt', 'w') as f:
                            f.write('\n'.join(log2))
             else:
-                shutil.copy2(file2, outdirs['failed'])
-                log2.append('Page2 "{}" was detected as empty and therefore copied to "{}" ...'.format(file2, outdirs['failed']))
+                save_image(page2, os.path.join(outdirs['failed_empty'], os.path.basename(os.path.splitext(file2)[0])) + '.png')
+                log2.append('Page2 "{}" was detected as empty and therefore saved to "{}" ...'.format(file2, outdirs['failed_empty']))
                 if debug:
-                    with open(os.path.join(outdirs['failed'], os.path.basename(os.path.splitext(file2)[0])) + '-log.txt', 'w') as f:
+                    with open(os.path.join(outdirs['failed_empty'], os.path.basename(os.path.splitext(file2)[0])) + '-log.txt', 'w') as f:
                         f.write('\n'.join(log2))
+
         else:
             ## no (or too many) bc found on both pages
-            shutil.copy2(file1, outdirs['failed'])
-            shutil.copy2(file2, outdirs['failed'])
-            log1.append('Copied file "{}" to "{}" ...'.format(file1, outdirs['failed']))
-            log2.append('Copied file "{}" to "{}" ...'.format(file2, outdirs['failed']))
+            save_image(page1, os.path.join(outdirs['failed_filled'], os.path.basename(os.path.splitext(file1)[0])) + '.png')
+            log1.append('No (or too many) BC detected. Saved file "{}" to "{}" ...'.format(file1, outdirs['failed_filled']))
             if debug:
-                with open(os.path.join(outdirs['failed'], os.path.basename(os.path.splitext(file1)[0])) + '-log.txt', 'w') as f:
+                with open(os.path.join(outdirs['failed_filled'], os.path.basename(os.path.splitext(file1)[0])) + '-log.txt', 'w') as f:
                     f.write('\n'.join(log1))
-                with open(os.path.join(outdirs['failed'], os.path.basename(os.path.splitext(file2)[0])) + '-log.txt', 'w') as f:
-                    f.write('\n'.join(log2))
+            if fill(page2) > PAGE_EMPTY:
+                save_image(page2, os.path.join(outdirs['failed_filled'], os.path.basename(os.path.splitext(file2)[0])) + '.png')
+                log2.append('No (or too many) BC detected. Saved file "{}" to "{}" ...'.format(file2, outdirs['failed_filled']))
+                if debug:
+                    with open(os.path.join(outdirs['failed_filled'], os.path.basename(os.path.splitext(file2)[0])) + '-log.txt', 'w') as f:
+                        f.write('\n'.join(log2))
+            else:
+                save_image(page2, os.path.join(outdirs['failed_empty'], os.path.basename(os.path.splitext(file2)[0])) + '.png')
+                log2.append('No (or too many) BC detected. Saved file "{}" to "{}" ...'.format(file2, outdirs['failed_empty']))
+                if debug:
+                    with open(os.path.join(outdirs['failed_empty'], os.path.basename(os.path.splitext(file2)[0])) + '-log.txt', 'w') as f:
+                        f.write('\n'.join(log2))
     else:
         bc = extract_barcode(page2)
         if len(bc) == 1:
@@ -174,10 +209,10 @@ def process_doublepage(file1, file2, outdirs, debug):
                 ## save page2 and move page1 to failed
             outdir = os.path.join(outdirs['done'], id)
             mkdir(outdir)
-            shutil.copy2(file1, outdirs['failed'])
-            log1.append('Page1 "{}" was detected as empty and therefore copied to "{}" ...'.format(file1, outdirs['failed']))
+            save_image(page1, os.path.join(outdirs['failed_empty'], os.path.basename(os.path.splitext(file1)[0])) + '.png')
+            log1.append('Saved file "{}" to "{}" ...'.format(file1, outdirs['failed_empty']))
             if debug:
-                with open(os.path.join(outdirs['failed'], os.path.basename(os.path.splitext(file1)[0])) + '-log.txt', 'w') as f:
+                with open(os.path.join(outdirs['failed_empty'], os.path.basename(os.path.splitext(file1)[0])) + '-log.txt', 'w') as f:
                     f.write('\n'.join(log1))
             outfile = '{}.png'.format(id)
             outfile2 = save_incr_image(page2, os.path.join(outdir, outfile))
@@ -187,15 +222,23 @@ def process_doublepage(file1, file2, outdirs, debug):
                     f.write('\n'.join(log2))
         else:
             ## no bc found on both pages
-            shutil.copy2(file1, outdirs['failed'])
-            shutil.copy2(file2, outdirs['failed'])
-            log1.append('Copied file "{}" to "{}" ...'.format(file1, outdirs['failed']))
-            log2.append('Copied file "{}" to "{}" ...'.format(file2, outdirs['failed']))
+            save_image(page1, os.path.join(outdirs['failed_empty'], os.path.basename(os.path.splitext(file1)[0])) + '.png')
+            log1.append('Saved file "{}" to "{}" ...'.format(file1, outdirs['failed_empty']))
             if debug:
-                with open(os.path.join(outdirs['failed'], os.path.basename(os.path.splitext(file1)[0])) + '-log.txt', 'w') as f:
+                with open(os.path.join(outdirs['failed_empty'], os.path.basename(os.path.splitext(file1)[0])) + '-log.txt', 'w') as f:
                     f.write('\n'.join(log1))
-                with open(os.path.join(outdirs['failed'], os.path.basename(os.path.splitext(file2)[0])) + '-log.txt', 'w') as f:
-                    f.write('\n'.join(log2))
+            if fill(page2) > PAGE_EMPTY:
+                save_image(page2, os.path.join(outdirs['failed_filled'], os.path.basename(os.path.splitext(file2)[0])) + '.png')
+                log2.append('Saved file "{}" to "{}" ...'.format(file2, outdirs['failed_filled']))
+                if debug:
+                    with open(os.path.join(outdirs['failed_filled'], os.path.basename(os.path.splitext(file2)[0])) + '-log.txt', 'w') as f:
+                        f.write('\n'.join(log2))
+            else:
+                save_image(page2, os.path.join(outdirs['failed_empty'], os.path.basename(os.path.splitext(file2)[0])) + '.png')
+                log2.append('Saved file "{}" to "{}" ...'.format(file2, outdirs['failed_empty']))
+                if debug:
+                    with open(os.path.join(outdirs['failed_empty'], os.path.basename(os.path.splitext(file2)[0])) + '-log.txt', 'w') as f:
+                        f.write('\n'.join(log2))
 
 def main():
     ap = argparse.ArgumentParser()
@@ -220,7 +263,7 @@ def main():
 
     ## acquire scans to process from subdirectories of current directory (if none found we might not be in the right directory??)
     with os.scandir(args.indir) as it:
-        files = [os.path.join(args.indir, f.name) for f in it if f.is_file() and not f.name.startswith('.') and f.name.endswith('.pnm')]
+        files = [f.path for f in it if f.is_file() and not f.name.startswith('.') and f.name.endswith('.pnm')]
         logging.info('Found {} pnm-files in current working directory.'.format(len(files)))
         files.sort(reverse = True)
         files_doublets, files_singlets = disentangle_scans(files)
@@ -235,11 +278,19 @@ def main():
         ## cp singlet files to failed
         for fs in files_singlets:
             log = ['Log for single page "{}"'.format(fs)]
-            log.append('Copied file "{}" to "{}" ...'.format(fs, outdirs['failed']))
-            shutil.copy2(fs, outdirs['failed'])
-            if args.debug:
-                with open(os.path.join(outdirs['failed'], os.path.basename(os.path.splitext(fs)[0])) + '-log.txt', 'w') as f:
-                    f.write('\n'.join(log))
+            im = load_image(fs)
+            if fill(im) > PAGE_EMPTY:
+                save_image(im, os.path.join(outdirs['failed_filled'], os.path.basename(os.path.splitext(fs)[0])) + '.png')
+                log.append('Saved file "{}" to "{}" ...'.format(fs, outdirs['failed_filled']))
+                if args.debug:
+                    with open(os.path.join(outdirs['failed_filled'], os.path.basename(os.path.splitext(fs)[0])) + '-log.txt', 'w') as f:
+                        f.write('\n'.join(log))
+            else:
+                save_image(im, os.path.join(outdirs['failed_empty'], os.path.basename(os.path.splitext(fs)[0])) + '.png')
+                log.append('Saved file "{}" to "{}" ...'.format(fs, outdirs['failed_empty']))
+                if args.debug:
+                    with open(os.path.join(outdirs['failed_empty'], os.path.basename(os.path.splitext(fs)[0])) + '-log.txt', 'w') as f:
+                        f.write('\n'.join(log))
 
 if __name__ == '__main__':
     sys.exit(main())
